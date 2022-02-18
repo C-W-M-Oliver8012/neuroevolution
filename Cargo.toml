@@ -1,0 +1,16 @@
+[package]
+name = "neuroevolution"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+rand = "0.8.4"
+rand_distr = "0.4.3"
+blas-src = { version = "0.8", features = ["netlib"], optional = true }
+blas = { version = "0.22.0", optional = true }
+
+[features]
+enable-blas = ["blas", "blas-src"]
+naive = []
