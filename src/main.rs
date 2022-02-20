@@ -1,3 +1,7 @@
+pub mod matrix;
+pub mod models;
+pub mod nn;
+
 fn main() {
-    println!("Hello, world!");
+    models::xor::xor_ga::train();
 }

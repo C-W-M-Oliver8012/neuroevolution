@@ -34,7 +34,6 @@ pub fn print(a: &XorModel) {
 
 pub fn feedforward(a: &XorModel, input: &matrix::Matrix) -> matrix::Matrix {
     let mut output = fully_connected::feedforward(&a.fc1, input);
-    output = activations::normalize(&output, 0.0, 1.0);
     output = activations::leaky_relu(&output, 0.25);
 
     output = fully_connected::feedforward(&a.fc2, &output);

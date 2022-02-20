@@ -155,6 +155,22 @@ pub fn variance(a: &Matrix, mean: f32) -> f32 {
     variance / (a.rows * a.columns) as f32
 }
 
+pub fn normalize(a: &Matrix, new_mean: f32, new_std: f32) -> Matrix {
+    let current_mean = mean(a);
+    let current_variance = variance(a, current_mean);
+    let current_std = current_variance.sqrt();
+
+    let mut b = a.clone();
+    for i in 0..b.rows * b.columns {
+        b.value[i] = b.value[i] - current_mean + new_mean;
+        if current_std != 0.0 {
+            b.value[i] /= current_std;
+            b.value[i] *= new_std;
+        }
+    }
+    b
+}
+
 pub fn save(a: &Matrix, filename: &str) {
     let mut f = File::create(filename).unwrap();
 
