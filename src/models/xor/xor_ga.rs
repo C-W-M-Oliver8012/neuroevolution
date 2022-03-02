@@ -46,6 +46,53 @@ fn score_population(population: &Vec<Individual>) -> (f32, f32, Vec<Individual>,
     (best_fitness, average_fitness, updated_pop, best_index)
 }
 
+fn mutate(a: &xor::XorModel, mutation_rate: f32, std: f32) -> xor::XorModel {
+    let mut b = a.clone();
+
+    // fc1
+    // weights
+    for i in 0..a.fc1.weights.value.len() {
+        let m = thread_rng().gen::<f32>() % 1.0;
+
+        if m <= mutation_rate {
+            let w: f32 = thread_rng().sample(StandardNormal);
+            b.fc1.weights.value[i] += w * std;
+        }
+    }
+
+    // bias
+    for i in 0..a.fc1.bias.value.len() {
+        let m = thread_rng().gen::<f32>() % 1.0;
+
+        if m <= mutation_rate {
+            let w: f32 = thread_rng().sample(StandardNormal);
+            b.fc1.bias.value[i] += w * std;
+        }
+    }
+
+    // fc2
+    //weights
+    for i in 0..a.fc2.weights.value.len() {
+        let m = thread_rng().gen::<f32>() % 1.0;
+
+        if m <= mutation_rate {
+            let w: f32 = thread_rng().sample(StandardNormal);
+            b.fc2.weights.value[i] += w * std;
+        }
+    }
+
+    // bias
+    for i in 0..a.fc2.bias.value.len() {
+        let m = thread_rng().gen::<f32>() % 1.0;
+
+        if m <= mutation_rate {
+            let w: f32 = thread_rng().sample(StandardNormal);
+            b.fc2.bias.value[i] += w * std;
+        }
+    }
+    b
+}
+
 fn crossover(a: &xor::XorModel, b: &xor::XorModel, mutation_rate: f32, std: f32) -> xor::XorModel {
     let mut c = a.clone();
 
@@ -95,7 +142,7 @@ fn crossover(a: &xor::XorModel, b: &xor::XorModel, mutation_rate: f32, std: f32)
 
         if m <= mutation_rate {
             let w: f32 = thread_rng().sample(StandardNormal);
-            c.fc1.weights.value[i] += w * std;
+            c.fc2.weights.value[i] += w * std;
         }
     }
 
@@ -111,7 +158,7 @@ fn crossover(a: &xor::XorModel, b: &xor::XorModel, mutation_rate: f32, std: f32)
 
         if m <= mutation_rate {
             let w: f32 = thread_rng().sample(StandardNormal);
-            c.fc1.bias.value[i] += w * std;
+            c.fc2.bias.value[i] += w * std;
         }
     }
     c
@@ -170,7 +217,7 @@ pub fn print_outputs(model: &xor::XorModel) {
 }
 
 pub fn train() {
-    let population = init_population(1000);
+    let population = init_population(10000);
     let mut info = score_population(&population);
 
     let mut g = 0;
@@ -183,6 +230,7 @@ pub fn train() {
             if i == 0 {
                 info.2[i].individual = old_population[info.3].individual.clone();
             } else {
+                /*
                 let mut parent_one_index = thread_rng().gen::<usize>() % info.2.len();
                 let mut parent_two_index = thread_rng().gen::<usize>() % info.2.len();
 
@@ -202,7 +250,18 @@ pub fn train() {
                     }
                 }
 
-                info.2[i].individual = crossover(&old_population[parent_one_index].individual, &old_population[parent_two_index].individual, 0.01, 0.1);
+                info.2[i].individual = crossover(&old_population[parent_one_index].individual, &old_population[parent_two_index].individual, 1.0, 0.05);
+                */
+                let mut parent_one_index = thread_rng().gen::<usize>() % info.2.len();
+
+                for _ in 0..5 {
+                    let r = thread_rng().gen::<usize>() % info.2.len();
+                    if old_population[r].score.0 >= old_population[parent_one_index].score.0 {
+                        parent_one_index = r;
+                    }
+                }
+
+                info.2[i].individual = mutate(&old_population[parent_one_index].individual, 1.0, 0.05);
             }
         }
 
@@ -211,11 +270,6 @@ pub fn train() {
 
     println!("Generation {}: bf: {} af: {}", g, info.0, info.1);
 
-    for i in 0..info.2.len() {
-        if info.2[i].score.0 == 4.0 {
-            xor::print(&info.2[i].individual);
-            print_outputs(&info.2[i].individual);
-            break;
-        }
-    }
+    xor::print(&info.2[info.3].individual);
+    print_outputs(&info.2[info.3].individual);
 }

@@ -21,8 +21,8 @@ pub fn new() -> XorModel {
 
 pub fn new_gaussian_noise() -> XorModel {
     XorModel {
-        fc1: fully_connected::new_gaussian_noise(2, 4),
-        fc2: fully_connected::new_gaussian_noise(4, 2),
+        fc1: fully_connected::new_gaussian_noise(2, 10),
+        fc2: fully_connected::new_gaussian_noise(10, 2),
     }
 }
 
