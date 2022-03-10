@@ -91,7 +91,10 @@ pub fn reshape(
     }
 
     let mut b: matrix::Matrix = matrix::new(filter_rows * filter_columns, num_windows);
+
     assert!(b_value.len() == b.value.len());
+    assert!(num_windows == output_rows * output_columns);
+    
     b.value = b_value;
 
     (b, output_rows, output_columns)

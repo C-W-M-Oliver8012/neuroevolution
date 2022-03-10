@@ -17,13 +17,13 @@ fn main() {
     }
     */
 
-    let mut a = matrix::new(3, 3);
+    let mut a = matrix::new(1, 2);
     a.value = vec![
-        3.0, 2.0, 1.0, 9.0, 8.0, 4.0, 0.0, 1.0, 8.0,
+        1.0, 0.0,
     ];
     matrix::print(&a);
 
-    let b = conv::reshape(&a, 2, 2, 1);
+    let b = conv::reshape(&a, 1, 2, 1);
     matrix::print(&b.0);
     println!("{}, {}", b.1, b.2);
 }
