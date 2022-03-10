@@ -45,8 +45,8 @@ fn feedforward_test() {
     let mut input = matrix::new(1, 2);
     input.value = vec![2.0, 1.0];
 
-    let mut expected_output = matrix::multiply(&input, &a.weights).unwrap();
-    expected_output = matrix::add(&expected_output, &a.bias).unwrap();
+    let mut expected_output = matrix::multiply(&input, &a.weights);
+    expected_output = matrix::add(&expected_output, &a.bias);
 
     let output = fully_connected::feedforward(&a, &input);
 

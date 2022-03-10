@@ -32,15 +32,15 @@ pub fn print(a: &FullyConnected) {
 }
 
 pub fn feedforward(fully_connected: &FullyConnected, input: &matrix::Matrix) -> matrix::Matrix {
-    let mut output = matrix::multiply(input, &fully_connected.weights).unwrap();
-    output = matrix::add(&output, &fully_connected.bias).unwrap();
+    let mut output = matrix::multiply(input, &fully_connected.weights);
+    output = matrix::add(&output, &fully_connected.bias);
     output
 }
 
 pub fn add(a: &FullyConnected, b: &FullyConnected) -> FullyConnected {
     let mut c = a.clone();
-    c.weights = matrix::add(&a.weights, &b.weights).unwrap();
-    c.bias = matrix::add(&a.bias, &b.bias).unwrap();
+    c.weights = matrix::add(&a.weights, &b.weights);
+    c.bias = matrix::add(&a.bias, &b.bias);
     c
 }
 

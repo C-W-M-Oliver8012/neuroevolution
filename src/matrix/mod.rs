@@ -28,6 +28,7 @@ pub fn new(rows: usize, columns: usize) -> Matrix {
     for _ in 0..a.rows * a.columns {
         a.value.push(0.0);
     }
+    
     a
 }
 
@@ -41,6 +42,7 @@ pub fn new_gaussian_noise(rows: usize, columns: usize) -> Matrix {
     for _ in 0..a.rows * a.columns {
         a.value.push(thread_rng().sample(StandardNormal));
     }
+
     a
 }
 
@@ -63,10 +65,9 @@ pub fn print(a: &Matrix) {
 }
 
 #[cfg(feature = "enable-blas")]
-pub fn multiply(a: &Matrix, b: &Matrix) -> Result<Matrix, String> {
-    if a.columns != b.rows {
-        return Err(String::from("Matrix sizes are incorrect."));
-    }
+pub fn multiply(a: &Matrix, b: &Matrix) -> Matrix {
+    assert!(a.columns == b.rows, "Matrix sizes are incorrect.");
+
     let mut c = new(a.rows, b.columns);
     let (m, n, k) = (a.rows, b.columns, a.columns);
 
@@ -87,14 +88,14 @@ pub fn multiply(a: &Matrix, b: &Matrix) -> Result<Matrix, String> {
             m as i32,
         );
     }
-    Ok(c)
+
+    c
 }
 
 #[cfg(feature = "naive")]
-pub fn multiply(a: &Matrix, b: &Matrix) -> Result<Matrix, String> {
-    if a.columns != b.rows {
-        return Err(String::from("Matrix sizes are incorrect."));
-    }
+pub fn multiply(a: &Matrix, b: &Matrix) -> Matrix {
+    assert!(a.columns == b.rows, "Matrix sizes are incorrect.");
+
     let mut c = new(a.rows, b.columns);
 
     for i in 0..a.rows {
@@ -106,19 +107,20 @@ pub fn multiply(a: &Matrix, b: &Matrix) -> Result<Matrix, String> {
             c.value[j * c.rows + i] = sum;
         }
     }
-    Ok(c)
+
+    c
 }
 
-pub fn add(a: &Matrix, b: &Matrix) -> Result<Matrix, String> {
-    if a.rows != b.rows || a.columns != b.columns {
-        return Err(String::from("Matrix sizes are incorrect."));
-    }
+pub fn add(a: &Matrix, b: &Matrix) -> Matrix {
+    assert!(a.rows == b.rows, "Matrix sizes are incorrect.");
+    assert!(a.columns == b.columns, "Matrix sizes are incorrect.");
 
     let mut c = new(a.rows, a.columns);
     for i in 0..c.rows * c.columns {
         c.value[i] = a.value[i] + b.value[i];
     }
-    Ok(c)
+    
+    c
 }
 
 #[cfg(feature = "enable-blas")]
@@ -127,6 +129,7 @@ pub fn scalar(a: &Matrix, s: f32) -> Matrix {
     unsafe {
         blas::sscal((b.rows * b.columns) as i32, s, &mut b.value, 1);
     }
+
     b
 }
 
@@ -136,6 +139,7 @@ pub fn scalar(a: &Matrix, s: f32) -> Matrix {
     for i in 0..b.value.len() {
         b.value[i] *= s;
     }
+
     b
 }
 
@@ -144,6 +148,7 @@ pub fn mean(a: &Matrix) -> f32 {
     for i in 0..a.rows * a.columns {
         sum += a.value[i];
     }
+
     sum / (a.rows * a.columns) as f32
 }
 
@@ -152,6 +157,7 @@ pub fn variance(a: &Matrix, mean: f32) -> f32 {
     for i in 0..a.rows * a.columns {
         variance += (a.value[i] - mean).powi(2);
     }
+
     variance / (a.rows * a.columns) as f32
 }
 
@@ -168,6 +174,7 @@ pub fn normalize(a: &Matrix, new_mean: f32, new_std: f32) -> Matrix {
             b.value[i] *= new_std;
         }
     }
+
     b
 }
 

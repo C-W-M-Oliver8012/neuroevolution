@@ -1,6 +1,3 @@
-pub mod xor_es;
-pub mod xor_ga;
-
 use crate::matrix;
 use crate::nn::activations;
 use crate::nn::layers::fully_connected;
@@ -14,8 +11,8 @@ pub struct XorModel {
 
 pub fn new() -> XorModel {
     XorModel {
-        fc1: fully_connected::new(2, 4),
-        fc2: fully_connected::new(4, 2),
+        fc1: fully_connected::new(2, 10),
+        fc2: fully_connected::new(10, 2),
     }
 }
 

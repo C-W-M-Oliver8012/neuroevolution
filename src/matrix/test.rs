@@ -35,7 +35,7 @@ fn multiply_test() {
     a.value = vec![4.0, 6.0, 1.0, 9.0, 7.0, 3.0];
     b.value = vec![2.0, 8.0, 3.0, 3.0, 2.0, 8.0, 7.0, 2.0, 9.0];
 
-    let c = matrix::multiply(&a, &b).unwrap();
+    let c = matrix::multiply(&a, &b);
     assert_eq!(c.rows, 2);
     assert_eq!(c.columns, 3);
     assert_eq!(c.value, [37.0, 93.0, 70.0, 60.0, 93.0, 87.0]);
@@ -48,7 +48,7 @@ fn multiply_panic_test() {
     let mut b = matrix::new(3, 3);
     a.value = vec![4.0, 6.0, 1.0, 9.0, 7.0, 3.0];
     b.value = vec![2.0, 8.0, 3.0, 3.0, 2.0, 8.0, 7.0, 2.0, 9.0];
-    let _ = matrix::multiply(&b, &a).unwrap();
+    let _ = matrix::multiply(&b, &a);
 }
 
 #[test]
@@ -58,7 +58,7 @@ fn add_test() {
     a.value = vec![4.0, 6.0, 1.0, 9.0, 7.0, 3.0];
     b.value = vec![2.0, 8.0, 3.0, 3.0, 2.0, 8.0];
 
-    let c = matrix::add(&a, &b).unwrap();
+    let c = matrix::add(&a, &b);
     assert_eq!(c.rows, 2);
     assert_eq!(c.columns, 3);
     assert_eq!(c.value, [6.0, 14.0, 4.0, 12.0, 9.0, 11.0]);
@@ -72,7 +72,7 @@ fn add_panic_test() {
     a.value = vec![4.0, 6.0, 1.0, 9.0, 7.0, 3.0];
     b.value = vec![2.0, 8.0, 3.0, 3.0];
 
-    let _ = matrix::add(&a, &b).unwrap();
+    let _ = matrix::add(&a, &b);
 }
 
 #[test]
