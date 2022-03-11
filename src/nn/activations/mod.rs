@@ -9,6 +9,6 @@ pub fn parameterized_relu(a: &matrix::Matrix, negative_slope: f32) -> matrix::Ma
             b.value[i] *= negative_slope;
         }
     }
-    
+
     b
 }

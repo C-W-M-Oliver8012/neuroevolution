@@ -28,7 +28,7 @@ pub fn new(rows: usize, columns: usize) -> Matrix {
     for _ in 0..a.rows * a.columns {
         a.value.push(0.0);
     }
-    
+
     a
 }
 
@@ -119,7 +119,7 @@ pub fn add(a: &Matrix, b: &Matrix) -> Matrix {
     for i in 0..c.rows * c.columns {
         c.value[i] = a.value[i] + b.value[i];
     }
-    
+
     c
 }
 
