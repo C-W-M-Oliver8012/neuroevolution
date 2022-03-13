@@ -8,7 +8,7 @@ edition = "2021"
 [dependencies]
 rand = "0.8.4"
 rand_distr = "0.4.3"
-blas-src = { version = "0.8", features = ["netlib"], optional = true }
+blas-src = { version = "0.8", features = ["blis"], optional = true }
 blas = { version = "0.22.0", optional = true }
 
 [features]
