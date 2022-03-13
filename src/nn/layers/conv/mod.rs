@@ -75,10 +75,14 @@ pub fn get_window_size(
     filter_columns: usize,
     stride: usize,
 ) -> (usize, usize) {
-    let window_rows = (input_rows - filter_rows) / stride + 1;
-    let window_columns = (input_columns - filter_columns) / stride + 1;
+    assert!(stride != 0);
+    let window_rows = (input_rows as f32 - filter_rows as f32) / stride as f32 + 1.0;
+    let window_columns = (input_columns as f32 - filter_columns as f32) / stride as f32 + 1.0;
 
-    (window_rows, window_columns)
+    assert!(window_rows % 1.0 == 0.0);
+    assert!(window_columns % 1.0 == 0.0);
+
+    (window_rows as usize, window_columns as usize)
 }
 
 pub fn im2col(
@@ -89,8 +93,6 @@ pub fn im2col(
     filter_columns: usize,
     num_channels: usize,
 ) -> matrix::Matrix {
-    assert!(num_channels == a.len());
-
     let mut b = matrix::new(
         filter_rows * filter_columns * num_channels,
         window_rows * window_columns,
@@ -145,6 +147,8 @@ pub fn row2im(
 }
 
 pub fn feedforward(conv: Conv, input: &[matrix::Matrix]) -> Vec<matrix::Matrix> {
+    assert!(input.len() == conv.num_channels);
+
     let window_size = get_window_size(
         input[0].rows,
         input[0].columns,

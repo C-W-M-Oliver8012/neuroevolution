@@ -19,6 +19,8 @@ pub struct Matrix {
 }
 
 pub fn new(rows: usize, columns: usize) -> Matrix {
+    assert!(rows != 0);
+    assert!(columns != 0);
     let mut a = Matrix {
         rows,
         columns,
@@ -33,6 +35,8 @@ pub fn new(rows: usize, columns: usize) -> Matrix {
 }
 
 pub fn new_gaussian_noise(rows: usize, columns: usize) -> Matrix {
+    assert!(rows != 0);
+    assert!(columns != 0);
     let mut a = Matrix {
         rows,
         columns,
