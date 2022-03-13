@@ -169,12 +169,8 @@ pub fn feedforward(conv: Conv, input: &[matrix::Matrix]) -> Vec<matrix::Matrix> 
 
     let mut output = row2im(&output_matrix, window_size.0, window_size.1);
 
-    for i in 0..conv.num_filters {
-        output[i] = matrix::scalar(
-            &output[i],
-            (conv.filter_rows * conv.filter_columns * conv.num_channels) as f32,
-        );
-        output[i] = matrix::element_wise_add(&output[i], conv.bias[i]);
+    for (i, output_im) in output.iter_mut().enumerate() {
+        *output_im = matrix::element_wise_add(output_im, conv.bias[i]);
     }
 
     output
