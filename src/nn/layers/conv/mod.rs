@@ -68,17 +68,29 @@ pub fn new_gaussian_noise(
 // Output width = (Input width + padding width right + padding width left - kernel width) / (stide width) + 1
 // Output depth = Number of kernels
 
+pub fn get_window_size(
+    input_rows: usize,
+    input_columns: usize,
+    filter_rows: usize,
+    filter_columns: usize,
+    stride: usize,
+) -> (usize, usize) {
+    let window_rows = (input_rows - filter_rows) / stride + 1;
+    let window_columns = (input_columns - filter_columns) / stride + 1;
+
+    (window_rows, window_columns)
+}
+
 pub fn im2col(
     a: &[matrix::Matrix],
+    window_rows: usize,
+    window_columns: usize,
     filter_rows: usize,
     filter_columns: usize,
     num_channels: usize,
-    stride: usize,
 ) -> matrix::Matrix {
     assert!(num_channels == a.len());
 
-    let window_rows = (a[0].rows - filter_rows) / stride + 1;
-    let window_columns = (a[0].columns - filter_columns) / stride + 1;
     let mut b = matrix::new(
         filter_rows * filter_columns * num_channels,
         window_rows * window_columns,
@@ -107,17 +119,21 @@ pub fn im2col(
     b
 }
 
-pub fn row2im(a: &matrix::Matrix, im_rows: usize, im_columns: usize) -> Vec<matrix::Matrix> {
-    assert!(a.columns == im_rows * im_columns);
+pub fn row2im(
+    a: &matrix::Matrix,
+    window_rows: usize,
+    window_columns: usize,
+) -> Vec<matrix::Matrix> {
+    assert!(a.columns == window_rows * window_columns);
 
     let mut b: Vec<matrix::Matrix> = Vec::with_capacity(a.rows);
 
     for i in 0..a.rows {
-        b.push(matrix::new(im_rows, im_columns));
+        b.push(matrix::new(window_rows, window_columns));
         for j in 0..a.columns {
             let a_index = j * a.rows + i;
-            for k in 0..im_rows {
-                for l in 0..im_columns {
+            for k in 0..window_rows {
+                for l in 0..window_columns {
                     let b_index = l * b[i].rows + k;
                     b[i].value[b_index] = a.value[a_index];
                 }
@@ -128,8 +144,34 @@ pub fn row2im(a: &matrix::Matrix, im_rows: usize, im_columns: usize) -> Vec<matr
     b
 }
 
-/*
-pub fn feedforward() -> Vec<Vec<matrix::Matrix>> {
+pub fn feedforward(conv: Conv, input: &[matrix::Matrix]) -> Vec<matrix::Matrix> {
+    let window_size = get_window_size(
+        input[0].rows,
+        input[0].columns,
+        conv.filter_rows,
+        conv.filter_columns,
+        conv.stride,
+    );
 
+    let mut output_matrix = im2col(
+        input,
+        window_size.0,
+        window_size.1,
+        conv.filter_rows,
+        conv.filter_columns,
+        conv.num_channels,
+    );
+    output_matrix = matrix::multiply(&conv.filters, &output_matrix);
+
+    let mut output = row2im(&output_matrix, window_size.0, window_size.1);
+
+    for i in 0..conv.num_filters {
+        output[i] = matrix::scalar(
+            &output[i],
+            (conv.filter_rows * conv.filter_columns * conv.num_channels) as f32,
+        );
+        output[i] = matrix::element_wise_add(&output[i], conv.bias[i]);
+    }
+
+    output
 }
-*/

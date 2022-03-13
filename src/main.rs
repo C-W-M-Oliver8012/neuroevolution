@@ -11,6 +11,7 @@ fn main() {
     matrix::print(&a[0]);
     matrix::print(&a[1]);
 
-    let b = conv::im2col(&a, 2, 2, 2, 1);
+    let window_size = conv::get_window_size(a[0].rows, a[0].columns, 2, 2, 1);
+    let b = conv::im2col(&a, window_size.0, window_size.1, 2, 2, 2);
     matrix::print(&b);
 }
