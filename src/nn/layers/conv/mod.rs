@@ -1,10 +1,13 @@
 use crate::matrix;
+use rand::prelude::*;
+use rand_distr::StandardNormal;
 
 #[derive(Clone)]
 pub struct Conv {
     pub num_channels: usize,
     pub num_filters: usize,
     pub stride: usize,
+    pub bias: Vec<f32>,
     pub filters: matrix::Matrix,
     pub filter_rows: usize,
     pub filter_columns: usize,
@@ -17,14 +20,21 @@ pub fn new(
     filter_rows: usize,
     filter_columns: usize,
 ) -> Conv {
-    Conv {
+    let mut conv = Conv {
         num_channels,
         num_filters,
         stride,
+        bias: Vec::with_capacity(num_filters),
         filters: matrix::new(num_filters, filter_rows * filter_columns * num_channels),
         filter_rows,
         filter_columns,
+    };
+
+    for _ in 0..num_filters {
+        conv.bias.push(0.0);
     }
+
+    conv
 }
 
 pub fn new_gaussian_noise(
@@ -34,17 +44,24 @@ pub fn new_gaussian_noise(
     filter_rows: usize,
     filter_columns: usize,
 ) -> Conv {
-    Conv {
+    let mut conv = Conv {
         num_channels,
         num_filters,
         stride,
+        bias: Vec::with_capacity(num_filters),
         filters: matrix::new_gaussian_noise(
             num_filters,
             filter_rows * filter_columns * num_channels,
         ),
         filter_rows,
         filter_columns,
+    };
+
+    for _ in 0..num_filters {
+        conv.bias.push(thread_rng().sample(StandardNormal));
     }
+
+    conv
 }
 
 // Output height = (Input hiehgt + padding height top + padding height bottom - kernel height) / (stride height) + 1

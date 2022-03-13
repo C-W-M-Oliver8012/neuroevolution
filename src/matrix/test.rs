@@ -97,6 +97,18 @@ fn scalar_test() {
 }
 
 #[test]
+fn element_wise_add_test() {
+    let mut a = matrix::new(2, 3);
+    a.value = vec![4.0, 6.0, 1.0, 9.0, 7.0, 3.0];
+
+    let e: f32 = 5.0;
+    let b = matrix::element_wise_add(&a, e);
+    assert_eq!(b.rows, 2);
+    assert_eq!(b.columns, 3);
+    assert_eq!(b.value, [9.0, 11.0, 6.0, 14.0, 12.0, 8.0]);
+}
+
+#[test]
 fn mean_test() {
     let mut a = matrix::new(2, 2);
     a.value = vec![2.0, 4.0, 1.0, 7.0];

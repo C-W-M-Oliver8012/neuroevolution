@@ -116,7 +116,8 @@ pub fn add(a: &Matrix, b: &Matrix) -> Matrix {
     assert!(a.columns == b.columns, "Matrix sizes are incorrect.");
 
     let mut c = new(a.rows, a.columns);
-    for i in 0..c.rows * c.columns {
+
+    for i in 0..c.value.len() {
         c.value[i] = a.value[i] + b.value[i];
     }
 
@@ -126,6 +127,7 @@ pub fn add(a: &Matrix, b: &Matrix) -> Matrix {
 #[cfg(feature = "enable-blas")]
 pub fn scalar(a: &Matrix, s: f32) -> Matrix {
     let mut b = a.clone();
+
     unsafe {
         blas::sscal((b.rows * b.columns) as i32, s, &mut b.value, 1);
     }
@@ -136,8 +138,19 @@ pub fn scalar(a: &Matrix, s: f32) -> Matrix {
 #[cfg(feature = "naive")]
 pub fn scalar(a: &Matrix, s: f32) -> Matrix {
     let mut b = a.clone();
+
     for i in 0..b.value.len() {
         b.value[i] *= s;
+    }
+
+    b
+}
+
+pub fn element_wise_add(a: &Matrix, e: f32) -> Matrix {
+    let mut b = a.clone();
+
+    for i in 0..b.value.len() {
+        b.value[i] += e;
     }
 
     b
@@ -154,7 +167,7 @@ pub fn mean(a: &Matrix) -> f32 {
 
 pub fn variance(a: &Matrix, mean: f32) -> f32 {
     let mut variance: f32 = 0.0;
-    for i in 0..a.rows * a.columns {
+    for i in 0..a.value.len() {
         variance += (a.value[i] - mean).powi(2);
     }
 
@@ -167,7 +180,7 @@ pub fn normalize(a: &Matrix, new_mean: f32, new_std: f32) -> Matrix {
     let current_std = current_variance.sqrt();
 
     let mut b = a.clone();
-    for i in 0..b.rows * b.columns {
+    for i in 0..b.value.len() {
         b.value[i] = b.value[i] - current_mean + new_mean;
         if current_std != 0.0 {
             b.value[i] /= current_std;
@@ -183,7 +196,7 @@ pub fn save(a: &Matrix, filename: &str) {
 
     let mut matrix_bytes: Vec<[u8; 4]> = Vec::new();
 
-    for i in 0..a.rows * a.columns {
+    for i in 0..a.value.len() {
         matrix_bytes.push(a.value[i].to_le_bytes());
     }
 
