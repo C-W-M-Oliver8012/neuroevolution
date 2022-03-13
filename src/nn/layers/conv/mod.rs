@@ -130,17 +130,18 @@ pub fn row2im(
 
     let mut b: Vec<matrix::Matrix> = Vec::with_capacity(a.rows);
 
+    let mut j = 0;
     for i in 0..a.rows {
         b.push(matrix::new(window_rows, window_columns));
-        for j in 0..a.columns {
-            let a_index = j * a.rows + i;
-            for k in 0..window_rows {
-                for l in 0..window_columns {
-                    let b_index = l * b[i].rows + k;
-                    b[i].value[b_index] = a.value[a_index];
-                }
+        for k in 0..window_rows {
+            for l in 0..window_columns {
+                let a_index = j * a.rows + i;
+                let b_index = l * b[i].rows + k;
+                b[i].value[b_index] = a.value[a_index];
+                j += 1;
             }
         }
+        j = 0;
     }
 
     b
