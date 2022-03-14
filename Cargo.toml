@@ -8,9 +8,9 @@ edition = "2021"
 [dependencies]
 rand = "0.8.4"
 rand_distr = "0.4.3"
-blas-src = { version = "0.8", features = ["blis"], optional = true }
+blis-src = { version = "0.2.0", features = ["system"], optional = true }
 blas = { version = "0.22.0", optional = true }
 
 [features]
-enable-blas = ["blas", "blas-src"]
+enable-blas = ["blas", "blis-src"]
 naive = []

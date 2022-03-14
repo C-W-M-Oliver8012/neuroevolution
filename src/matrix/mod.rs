@@ -1,7 +1,7 @@
 pub mod test;
 
 #[cfg(feature = "enable-blas")]
-extern crate blas_src;
+extern crate blis_src;
 #[cfg(feature = "enable-blas")]
 use blas;
 

@@ -20,15 +20,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "blas-src"
-version = "0.8.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "bb48fbaa7a0cb9d6d96c46bac6cedb16f13a10aebcef1c4e73515aaae8c9909d"
-dependencies = [
- "blis-src",
-]
-
-[[package]]
 name = "blas-sys"
 version = "0.7.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -77,7 +68,7 @@ name = "neuroevolution"
 version = "0.1.0"
 dependencies = [
  "blas",
- "blas-src",
+ "blis-src",
  "rand",
  "rand_distr",
 ]
