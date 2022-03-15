@@ -12,5 +12,6 @@ blis-src = { version = "0.2.0", features = ["system"], optional = true }
 blas = { version = "0.22.0", optional = true }
 
 [features]
+default = ["enable-blas"]
 enable-blas = ["blas", "blis-src"]
 naive = []
