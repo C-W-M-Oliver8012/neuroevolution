@@ -1,9 +1,25 @@
 pub mod test;
 
-#[cfg(feature = "enable-blas")]
-extern crate blis_src;
-#[cfg(feature = "enable-blas")]
-use blas;
+#[link(name = "blis", kind = "static")]
+extern "C" {
+    fn sgemm_(
+        transa: *const std::os::raw::c_char,
+        transb: *const std::os::raw::c_char,
+        m: *const i32,
+        n: *const i32,
+        k: *const i32,
+        alpha: *const f32,
+        a: *const f32,
+        lda: *const i32,
+        b: *const f32,
+        ldb: *const i32,
+        beta: *const f32,
+        c: *mut f32,
+        ldc: *const i32,
+    );
+
+    fn sscal_(n: *const i32, alpha: *const f32, x: *mut f32, incx: *const i32);
+}
 
 use rand::prelude::*;
 use rand_distr::StandardNormal;
@@ -68,7 +84,6 @@ pub fn print(a: &Matrix) {
     println!();
 }
 
-#[cfg(feature = "enable-blas")]
 pub fn multiply(a: &Matrix, b: &Matrix) -> Matrix {
     assert!(a.columns == b.rows, "Matrix sizes are incorrect.");
 
@@ -76,40 +91,21 @@ pub fn multiply(a: &Matrix, b: &Matrix) -> Matrix {
     let (m, n, k) = (a.rows, b.columns, a.columns);
 
     unsafe {
-        blas::sgemm(
-            b'N',
-            b'N',
-            m as i32,
-            n as i32,
-            k as i32,
-            1.0,
-            &a.value,
-            m as i32,
-            &b.value,
-            k as i32,
-            0.0,
-            &mut c.value,
-            m as i32,
+        sgemm_(
+            &(b'N' as i8),
+            &(b'N' as i8),
+            &(m as i32),
+            &(n as i32),
+            &(k as i32),
+            &1.0,
+            a.value.as_ptr(),
+            &(m as i32),
+            b.value.as_ptr(),
+            &(k as i32),
+            &0.0,
+            c.value.as_mut_ptr(),
+            &(m as i32),
         );
-    }
-
-    c
-}
-
-#[cfg(feature = "naive")]
-pub fn multiply(a: &Matrix, b: &Matrix) -> Matrix {
-    assert!(a.columns == b.rows, "Matrix sizes are incorrect.");
-
-    let mut c = new(a.rows, b.columns);
-
-    for i in 0..a.rows {
-        for j in 0..b.columns {
-            let mut sum: f32 = 0.0;
-            for k in 0..a.columns {
-                sum += a.value[k * a.rows + i] * b.value[j * b.rows + k];
-            }
-            c.value[j * c.rows + i] = sum;
-        }
     }
 
     c
@@ -128,23 +124,11 @@ pub fn add(a: &Matrix, b: &Matrix) -> Matrix {
     c
 }
 
-#[cfg(feature = "enable-blas")]
 pub fn scalar(a: &Matrix, s: f32) -> Matrix {
     let mut b = a.clone();
 
     unsafe {
-        blas::sscal((b.rows * b.columns) as i32, s, &mut b.value, 1);
-    }
-
-    b
-}
-
-#[cfg(feature = "naive")]
-pub fn scalar(a: &Matrix, s: f32) -> Matrix {
-    let mut b = a.clone();
-
-    for i in 0..b.value.len() {
-        b.value[i] *= s;
+        sscal_(&((b.rows * b.columns) as i32), &s, b.value.as_mut_ptr(), &1);
     }
 
     b
