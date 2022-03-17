@@ -9,15 +9,15 @@ fn parameterized_relu_test() {
     a.value = vec![2.0, 4.0, -4.0, 8.0, -2.0, 6.0];
 
     let expected_output = [
-        a.value[0],
-        a.value[1],
+        a.value[0] * 0.5,
+        a.value[1] * 0.5,
         a.value[2] * 0.25,
-        a.value[3],
+        a.value[3] * 0.5,
         a.value[4] * 0.25,
-        a.value[5],
+        a.value[5] * 0.5,
     ];
 
-    let b = activations::parameterized_relu(&a, 0.25);
+    let b = activations::parameterized_relu(&a, 0.5, 0.25);
     assert_eq!(b.rows, 2);
     assert_eq!(b.columns, 3);
     assert_eq!(b.value, expected_output);
