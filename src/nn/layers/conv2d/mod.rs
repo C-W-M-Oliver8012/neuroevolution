@@ -6,8 +6,6 @@ pub struct Conv2D {
     pub num_filters: usize,
     pub filter_rows: usize,
     pub filter_columns: usize,
-    pub row_stride: usize,
-    pub column_stride: usize,
     pub filters: matrix::Matrix,
     pub bias: matrix::Matrix,
 }
@@ -17,16 +15,12 @@ pub fn new(
     num_filters: usize,
     filter_rows: usize,
     filter_columns: usize,
-    row_stride: usize,
-    column_stride: usize,
 ) -> Conv2D {
     Conv2D {
         num_channels,
         num_filters,
         filter_rows,
         filter_columns,
-        row_stride,
-        column_stride,
         filters: matrix::new(num_filters, filter_rows * filter_columns * num_channels),
         bias: matrix::new(1, num_filters),
     }
@@ -37,16 +31,12 @@ pub fn new_gaussian_noise(
     num_filters: usize,
     filter_rows: usize,
     filter_columns: usize,
-    row_stride: usize,
-    column_stride: usize,
 ) -> Conv2D {
     Conv2D {
         num_channels,
         num_filters,
         filter_rows,
         filter_columns,
-        row_stride,
-        column_stride,
         filters: matrix::new_gaussian_noise(
             num_filters,
             filter_rows * filter_columns * num_channels,
@@ -61,8 +51,6 @@ pub fn print(conv: &Conv2D) {
     println!("Num Filters: {}", conv.num_filters);
     println!("Filter Rows: {}", conv.filter_rows);
     println!("Filter Columns: {}", conv.filter_columns);
-    println!("Row Stride: {}", conv.row_stride);
-    println!("Column Stride: {}", conv.column_stride);
 
     let filters = get_filters(
         &conv.filters,
@@ -160,8 +148,8 @@ pub fn im2col(
                         // if rows or columns are outside range of matrix, then set to 0.0
                         if wr < 0
                             || wc < 0
-                            || wr as usize >= a[nc].rows
-                            || wc as usize >= a[nc].columns
+                            || wr as usize + fr >= a[nc].rows
+                            || wc as usize + fc >= a[nc].columns
                         {
                             b.value[inc] = 0.0;
                         } else {
@@ -241,10 +229,8 @@ pub fn get_filters(
 pub fn feedforward(
     conv: &Conv2D,
     input: &[matrix::Matrix],
-    top_padding: usize,
-    bottom_padding: usize,
-    left_padding: usize,
-    right_padding: usize,
+    stride: (usize, usize),
+    padding: (usize, usize, usize, usize),
 ) -> Vec<matrix::Matrix> {
     assert!(
         input.len() == conv.num_channels,
@@ -254,8 +240,8 @@ pub fn feedforward(
     let window_size = get_window_size(
         (input[0].rows, input[0].columns),
         (conv.filter_rows, conv.filter_columns),
-        (conv.row_stride, conv.column_stride),
-        (top_padding, bottom_padding, left_padding, right_padding),
+        (stride.0, stride.1),
+        (padding.0, padding.1, padding.2, padding.3),
     );
 
     let mut output_matrix = im2col(
@@ -263,8 +249,8 @@ pub fn feedforward(
         (window_size.0, window_size.1),
         (conv.filter_rows, conv.filter_columns),
         conv.num_channels,
-        (conv.row_stride, conv.column_stride),
-        (top_padding, left_padding),
+        (stride.0, stride.1),
+        (padding.0, padding.2),
     );
     output_matrix = matrix::multiply(&conv.filters, &output_matrix);
 
