@@ -1,3 +1,5 @@
+pub mod test;
+
 use crate::matrix;
 
 #[derive(Clone)]
@@ -146,14 +148,16 @@ pub fn im2col(
                 for fr in 0..filter_size.0 {
                     for fc in 0..filter_size.1 {
                         // if rows or columns are outside range of matrix, then set to 0.0
-                        if wr < 0
-                            || wc < 0
-                            || wr as usize + fr >= a[nc].rows
-                            || wc as usize + fc >= a[nc].columns
+                        let row: isize = wr + fr as isize;
+                        let column: isize = wc + fc as isize;
+                        if row < 0
+                            || column < 0
+                            || row >= a[nc].rows as isize
+                            || column >= a[nc].columns as isize
                         {
                             b.value[inc] = 0.0;
                         } else {
-                            let a_index = (wc as usize + fc) * a[nc].rows + (wr as usize + fr);
+                            let a_index = column as usize * a[nc].rows + row as usize;
                             b.value[inc] = a[nc].value[a_index];
                         }
                         inc += 1;
