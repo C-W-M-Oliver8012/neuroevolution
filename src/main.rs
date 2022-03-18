@@ -13,10 +13,10 @@ fn main() {
         input.push(matrix::new_gaussian_noise(3, 3));
     }
 
-    let conv1 = conv2d::new_gaussian_noise(3, 32, 3, 3);
-    let conv2 = conv2d::new_gaussian_noise(32, 32, 3, 3);
-    let conv3 = conv2d::new_gaussian_noise(32, 32, 3, 3);
-    let conv4 = conv2d::new_gaussian_noise(32, 32, 3, 3);
+    let conv1 = conv2d::new_gaussian_noise(3, 32, (3, 3));
+    let conv2 = conv2d::new_gaussian_noise(32, 32, (3, 3));
+    let conv3 = conv2d::new_gaussian_noise(32, 32, (3, 3));
+    let conv4 = conv2d::new_gaussian_noise(32, 32, (3, 3));
 
     let start = Instant::now();
 

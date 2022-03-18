@@ -5,47 +5,53 @@ use crate::nn::layers::conv2d;
 
 #[test]
 fn new_test() {
-    let conv = conv2d::new(2, 2, 2, 2);
+    let conv = conv2d::new(2, 2, (2, 3));
 
     assert!(conv.num_channels == 2);
     assert!(conv.num_filters == 2);
-    assert!(conv.filter_rows == 2);
-    assert!(conv.filter_columns == 2);
+    assert!(conv.filter_size.0 == 2);
+    assert!(conv.filter_size.1 == 3);
 
     assert!(conv.filters.rows == conv.num_filters);
-    assert!(conv.filters.columns == conv.filter_rows * conv.filter_columns * conv.num_channels);
+    assert!(conv.filters.columns == conv.filter_size.0 * conv.filter_size.1 * conv.num_channels);
     assert!(conv.bias.rows == 1);
     assert!(conv.bias.columns == conv.num_filters);
 
     assert!(
         conv.filters.value
-            == [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,]
+            == [
+                0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+                0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+            ]
     );
 }
 
 #[test]
 fn new_gaussian_noise_test() {
-    let conv = conv2d::new_gaussian_noise(2, 2, 2, 2);
+    let conv = conv2d::new_gaussian_noise(2, 2, (2, 3));
 
     assert!(conv.num_channels == 2);
     assert!(conv.num_filters == 2);
-    assert!(conv.filter_rows == 2);
-    assert!(conv.filter_columns == 2);
+    assert!(conv.filter_size.0 == 2);
+    assert!(conv.filter_size.1 == 3);
 
     assert!(conv.filters.rows == conv.num_filters);
-    assert!(conv.filters.columns == conv.filter_rows * conv.filter_columns * conv.num_channels);
+    assert!(conv.filters.columns == conv.filter_size.0 * conv.filter_size.1 * conv.num_channels);
     assert!(conv.bias.rows == 1);
     assert!(conv.bias.columns == conv.num_filters);
 
     assert!(
         conv.filters.value
-            != [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,]
+            != [
+                0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+                0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+            ]
     );
 }
 
 #[test]
 fn print_test() {
-    let conv = conv2d::new_gaussian_noise(2, 2, 2, 2);
+    let conv = conv2d::new_gaussian_noise(2, 2, (2, 2));
 
     conv2d::print(&conv);
 }
