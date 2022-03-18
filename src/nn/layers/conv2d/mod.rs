@@ -74,7 +74,7 @@ pub fn print(conv: &Conv2D) {
     matrix::print(&conv.bias);
 }
 
-// Output height = (Input hiehgt + padding height top + padding height bottom - kernel height) / (stride height) + 1
+// Output height = (Input height + padding height top + padding height bottom - kernel height) / (stride height) + 1
 // Output width = (Input width + padding width right + padding width left - kernel width) / (stide width) + 1
 // Output depth = Number of kernels
 
@@ -117,16 +117,16 @@ pub fn im2col(
     );
 
     // offset by top_padding
-    let neg_wr: isize = (-(padding.0 as isize)) * stride_size.0 as isize;
-    let pos_wr: isize = (window_size.0 as isize - padding.0 as isize) * stride_size.0 as isize;
+    let neg_wr: isize = -(padding.0 as isize);
+    let pos_wr: isize = window_size.0 as isize - padding.0 as isize;
 
     // offset by left_padding
-    let neg_wc: isize = (-(padding.1 as isize)) * stride_size.1 as isize;
-    let pos_wc: isize = (window_size.1 as isize - padding.1 as isize) * stride_size.1 as isize;
+    let neg_wc: isize = -(padding.1 as isize);
+    let pos_wc: isize = window_size.1 as isize - padding.1 as isize;
 
     let mut inc: usize = 0;
-    for wr in (neg_wr..pos_wr).step_by(stride_size.0) {
-        for wc in (neg_wc..pos_wc).step_by(stride_size.1) {
+    for wr in neg_wr..pos_wr {
+        for wc in neg_wc..pos_wc {
             for nc in 0..num_channels {
                 assert!(
                     a[0].rows == a[nc].rows,
@@ -148,8 +148,11 @@ pub fn im2col(
                 for fr in 0..filter_size.0 {
                     for fc in 0..filter_size.1 {
                         // if rows or columns are outside range of matrix, then set to 0.0
-                        let row: isize = wr + fr as isize;
-                        let column: isize = wc + fc as isize;
+                        let row: isize =
+                            neg_wr + fr as isize + (wr - neg_wr) * stride_size.0 as isize;
+                        let column: isize =
+                            neg_wc + fc as isize + (wc - neg_wc) * stride_size.1 as isize;
+
                         if row < 0
                             || column < 0
                             || row >= a[nc].rows as isize
