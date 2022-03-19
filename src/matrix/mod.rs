@@ -1,24 +1,29 @@
 pub mod test;
 
-#[link(name = "blis", kind = "static")]
+#[link(name = "blis")]
 extern "C" {
     fn sgemm_(
         transa: *const std::os::raw::c_char,
         transb: *const std::os::raw::c_char,
-        m: *const i32,
-        n: *const i32,
-        k: *const i32,
-        alpha: *const f32,
-        a: *const f32,
-        lda: *const i32,
-        b: *const f32,
-        ldb: *const i32,
-        beta: *const f32,
-        c: *mut f32,
-        ldc: *const i32,
+        m: *const std::os::raw::c_int,
+        n: *const std::os::raw::c_int,
+        k: *const std::os::raw::c_int,
+        alpha: *const std::os::raw::c_float,
+        a: *const std::os::raw::c_float,
+        lda: *const std::os::raw::c_int,
+        b: *const std::os::raw::c_float,
+        ldb: *const std::os::raw::c_int,
+        beta: *const std::os::raw::c_float,
+        c: *mut std::os::raw::c_float,
+        ldc: *const std::os::raw::c_int,
     );
 
-    fn sscal_(n: *const i32, alpha: *const f32, x: *mut f32, incx: *const i32);
+    fn sscal_(
+        n: *const std::os::raw::c_int,
+        alpha: *const std::os::raw::c_float,
+        x: *mut std::os::raw::c_float,
+        incx: *const std::os::raw::c_int,
+    );
 }
 
 use rand::prelude::*;
@@ -92,19 +97,19 @@ pub fn multiply(a: &Matrix, b: &Matrix) -> Matrix {
 
     unsafe {
         sgemm_(
-            &(b'N' as i8),
-            &(b'N' as i8),
-            &(m as i32),
-            &(n as i32),
-            &(k as i32),
-            &1.0,
+            &(b'N' as std::os::raw::c_char),
+            &(b'N' as std::os::raw::c_char),
+            &(m as std::os::raw::c_int),
+            &(n as std::os::raw::c_int),
+            &(k as std::os::raw::c_int),
+            &(1.0 as std::os::raw::c_float),
             a.value.as_ptr(),
-            &(m as i32),
+            &(m as std::os::raw::c_int),
             b.value.as_ptr(),
-            &(k as i32),
-            &0.0,
+            &(k as std::os::raw::c_int),
+            &(0.0 as std::os::raw::c_float),
             c.value.as_mut_ptr(),
-            &(m as i32),
+            &(m as std::os::raw::c_int),
         );
     }
 
@@ -128,7 +133,12 @@ pub fn scalar(a: &Matrix, s: f32) -> Matrix {
     let mut b = a.clone();
 
     unsafe {
-        sscal_(&((b.rows * b.columns) as i32), &s, b.value.as_mut_ptr(), &1);
+        sscal_(
+            &((b.rows * b.columns) as std::os::raw::c_int),
+            &s,
+            b.value.as_mut_ptr(),
+            &(1 as std::os::raw::c_int),
+        );
     }
 
     b
