@@ -62,5 +62,6 @@ pub fn load(dir_name: &str) -> XorModel {
     let mut a = new();
     a.fc1 = fully_connected::load(&a.fc1, (dir_name.to_owned() + "/fc1").as_str());
     a.fc2 = fully_connected::load(&a.fc2, (dir_name.to_owned() + "/fc2").as_str());
+
     a
 }
