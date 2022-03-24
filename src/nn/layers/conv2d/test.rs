@@ -166,3 +166,68 @@ fn im2col_test() {
             ]
     );
 }
+
+#[test]
+fn row2im_test() {
+    let mut m = matrix::new(4, 6);
+    m.value = vec![
+        1.0, 7.0, 13.0, 19.0, 2.0, 8.0, 14.0, 20.0, 3.0, 9.0, 15.0, 21.0, 4.0, 10.0, 16.0, 22.0,
+        5.0, 11.0, 17.0, 23.0, 6.0, 12.0, 18.0, 24.0,
+    ];
+
+    let im = conv2d::row2im(&m, (2, 3));
+
+    assert!(im.len() == 4);
+
+    for ind_im in im.iter() {
+        assert!(ind_im.rows == 2);
+        assert!(ind_im.columns == 3);
+    }
+
+    assert!(im[0].value == [1.0, 4.0, 2.0, 5.0, 3.0, 6.0]);
+    assert!(im[1].value == [7.0, 10.0, 8.0, 11.0, 9.0, 12.0]);
+    assert!(im[2].value == [13.0, 16.0, 14.0, 17.0, 15.0, 18.0]);
+    assert!(im[3].value == [19.0, 22.0, 20.0, 23.0, 21.0, 24.0]);
+}
+
+#[test]
+#[should_panic]
+fn row2im_column_window_size_test() {
+    let m = matrix::new(4, 6);
+
+    let _im = conv2d::row2im(&m, (2, 4));
+}
+
+#[test]
+fn get_filters_test() {
+    let mut conv = conv2d::new(2, 3, (2, 2));
+
+    conv.filters.value = vec![
+        1.0, 9.0, 17.0, 2.0, 10.0, 18.0, 3.0, 11.0, 19.0, 4.0, 12.0, 20.0, 5.0, 13.0, 21.0, 6.0,
+        14.0, 22.0, 7.0, 15.0, 23.0, 8.0, 16.0, 24.0,
+    ];
+
+    let filters = conv2d::get_filters(&conv.filters, conv.filter_size, conv.num_channels);
+
+    assert!(filters.len() == 6);
+
+    for filter in filters.iter() {
+        assert!(filter.rows == 2);
+        assert!(filter.columns == 2);
+    }
+
+    assert!(filters[0].value == [1.0, 3.0, 2.0, 4.0]);
+    assert!(filters[1].value == [5.0, 7.0, 6.0, 8.0]);
+    assert!(filters[2].value == [9.0, 11.0, 10.0, 12.0]);
+    assert!(filters[3].value == [13.0, 15.0, 14.0, 16.0]);
+    assert!(filters[4].value == [17.0, 19.0, 18.0, 20.0]);
+    assert!(filters[5].value == [21.0, 23.0, 22.0, 24.0]);
+}
+
+#[test]
+#[should_panic]
+fn get_filters_column_size_test() {
+    let conv = conv2d::new(2, 3, (2, 2));
+
+    let _filters = conv2d::get_filters(&conv.filters, conv.filter_size, conv.num_channels + 1);
+}

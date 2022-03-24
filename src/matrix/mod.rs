@@ -102,12 +102,12 @@ pub fn multiply(a: &Matrix, b: &Matrix) -> Matrix {
             &(m as std::os::raw::c_int),
             &(n as std::os::raw::c_int),
             &(k as std::os::raw::c_int),
-            &(1.0 as std::os::raw::c_float),
+            &(1.0_f32),
             a.value.as_ptr(),
             &(m as std::os::raw::c_int),
             b.value.as_ptr(),
             &(k as std::os::raw::c_int),
-            &(0.0 as std::os::raw::c_float),
+            &(0.0_f32),
             c.value.as_mut_ptr(),
             &(m as std::os::raw::c_int),
         );
@@ -137,7 +137,7 @@ pub fn scalar(a: &Matrix, s: f32) -> Matrix {
             &((b.rows * b.columns) as std::os::raw::c_int),
             &s,
             b.value.as_mut_ptr(),
-            &(1 as std::os::raw::c_int),
+            &(1_i32),
         );
     }
 
