@@ -231,3 +231,38 @@ fn get_filters_column_size_test() {
 
     let _filters = conv2d::get_filters(&conv.filters, conv.filter_size, conv.num_channels + 1);
 }
+
+#[test]
+fn feedforward_test() {
+    let mut input: Vec<matrix::Matrix> = Vec::new();
+    let mut conv = conv2d::new(3, 3, (2, 2));
+
+    for _ in 0..3 {
+        input.push(matrix::new(3, 3));
+    }
+
+    input[0].value = vec![2.0, 1.0, 8.0, 4.0, 9.0, 4.0, 7.0, 4.0, 8.0];
+    input[1].value = vec![1.0, 3.0, 8.0, 5.0, 7.0, 1.0, 9.0, 7.0, 1.0];
+    input[2].value = vec![8.0, 9.0, 8.0, 1.0, 2.0, 1.0, 5.0, 4.0, 7.0];
+
+    conv.filters.value = vec![
+        1.0, 2.0, 8.0, -1.0, 4.0, 5.0, 2.0, 7.0, -1.0, -2.0, -3.0, -4.0, 3.0, -8.0, 1.0, -3.0, 1.0,
+        1.0, 2.0, 5.0, -1.0, 3.0, -8.0, -1.0, 7.0, -1.0, -2.0, 1.0, 1.0, -2.0, -3.0, 8.0, 4.0, 5.0,
+        2.0, 6.0,
+    ];
+
+    conv.bias.value = vec![1.0, 2.0, 3.0];
+
+    let output = conv2d::feedforward(&conv, &input, (1, 1), (0, 0, 0, 0));
+
+    assert!(output.len() == 3);
+
+    for output_matrix in output.iter() {
+        assert!(output_matrix.rows == 2);
+        assert!(output_matrix.columns == 2);
+    }
+
+    assert!(output[0].value == [38.0, 54.0, 57.0, 53.0]);
+    assert!(output[1].value == [27.0, 158.0, 65.0, 12.0]);
+    assert!(output[2].value == [28.0, 49.0, 65.0, 105.0]);
+}
