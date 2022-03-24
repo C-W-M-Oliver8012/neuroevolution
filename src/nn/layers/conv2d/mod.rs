@@ -260,6 +260,10 @@ pub fn feedforward(
     let mut output = row2im(&output_matrix, window_size);
 
     for (i, output_im) in output.iter_mut().enumerate() {
+        *output_im = matrix::scalar(
+            output_im,
+            1.0 / (conv.filter_size.0 * conv.filter_size.1) as f32,
+        );
         *output_im = matrix::element_wise_add(output_im, conv.bias.value[i]);
     }
 

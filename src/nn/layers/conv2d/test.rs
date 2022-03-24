@@ -262,7 +262,44 @@ fn feedforward_test() {
         assert!(output_matrix.columns == 2);
     }
 
-    assert!(output[0].value == [38.0, 54.0, 57.0, 53.0]);
-    assert!(output[1].value == [27.0, 158.0, 65.0, 12.0]);
-    assert!(output[2].value == [28.0, 49.0, 65.0, 105.0]);
+    assert!(
+        output[0].value
+            == [
+                37.0 / 4.0 + 1.0,
+                53.0 / 4.0 + 1.0,
+                56.0 / 4.0 + 1.0,
+                52.0 / 4.0 + 1.0
+            ]
+    );
+    assert!(
+        output[1].value
+            == [
+                25.0 / 4.0 + 2.0,
+                156.0 / 4.0 + 2.0,
+                63.0 / 4.0 + 2.0,
+                10.0 / 4.0 + 2.0
+            ]
+    );
+    assert!(
+        output[2].value
+            == [
+                25.0 / 4.0 + 3.0,
+                46.0 / 4.0 + 3.0,
+                62.0 / 4.0 + 3.0,
+                102.0 / 4.0 + 3.0
+            ]
+    );
 }
+
+#[test]
+fn add_test() {
+    /*
+    let mut a = conv2d::new(2, 3, (2, 2));
+    let mut b = conv2d::new(2, 3, (2, 2));
+
+    a.filters.value = vec![];
+    */
+}
+
+#[test]
+fn scalar_test() {}
