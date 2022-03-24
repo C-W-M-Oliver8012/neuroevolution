@@ -1,6 +1,7 @@
 pub mod test;
 
 use crate::matrix;
+use std::fs;
 
 // filter_size.0 = filter rows, filter_size.1 = filter columns
 #[derive(Clone)]
@@ -285,5 +286,18 @@ pub fn scalar(a: &Conv2D, s: f32) -> Conv2D {
     b.filters = matrix::scalar(&b.filters, s);
     b.bias = matrix::scalar(&b.bias, s);
 
+    b
+}
+
+pub fn save(a: &Conv2D, dir_name: &str) {
+    fs::create_dir_all(dir_name).unwrap();
+    matrix::save(&a.filters, (dir_name.to_owned() + "/filters.bin").as_str());
+    matrix::save(&a.bias, (dir_name.to_owned() + "/bias.bin").as_str());
+}
+
+pub fn load(a: &Conv2D, dir_name: &str) -> Conv2D {
+    let mut b = a.clone();
+    b.filters = matrix::load(&b.filters, (dir_name.to_owned() + "/filters.bin").as_str());
+    b.bias = matrix::load(&b.bias, (dir_name.to_owned() + "/bias.bin").as_str());
     b
 }

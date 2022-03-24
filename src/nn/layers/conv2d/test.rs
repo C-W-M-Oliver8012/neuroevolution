@@ -2,6 +2,8 @@
 use crate::matrix;
 #[cfg(test)]
 use crate::nn::layers::conv2d;
+#[cfg(test)]
+use std::fs;
 
 #[test]
 fn new_test() {
@@ -293,13 +295,53 @@ fn feedforward_test() {
 
 #[test]
 fn add_test() {
-    /*
-    let mut a = conv2d::new(2, 3, (2, 2));
-    let mut b = conv2d::new(2, 3, (2, 2));
+    let a = conv2d::new_gaussian_noise(2, 3, (2, 2));
+    let b = conv2d::new_gaussian_noise(2, 3, (2, 2));
 
-    a.filters.value = vec![];
-    */
+    let c = conv2d::add(&a, &b);
+
+    for (i, val) in c.filters.value.iter().enumerate() {
+        assert!(*val == a.filters.value[i] + b.filters.value[i]);
+    }
+
+    for (i, val) in c.bias.value.iter().enumerate() {
+        assert!(*val == a.bias.value[i] + b.bias.value[i]);
+    }
 }
 
 #[test]
-fn scalar_test() {}
+fn scalar_test() {
+    let a = conv2d::new_gaussian_noise(2, 3, (2, 2));
+
+    let b = conv2d::scalar(&a, 0.5);
+
+    for (i, val) in b.filters.value.iter().enumerate() {
+        assert!(*val == a.filters.value[i] * 0.5);
+    }
+
+    for (i, val) in b.bias.value.iter().enumerate() {
+        assert!(*val == a.bias.value[i] * 0.5);
+    }
+}
+
+#[test]
+fn save_load_test() {
+    let a = conv2d::new_gaussian_noise(2, 3, (2, 2));
+
+    conv2d::save(&a, "conv2d");
+    let b = conv2d::load(&a, "conv2d");
+    fs::remove_dir_all("conv2d").unwrap();
+
+    assert!(a.num_channels == b.num_channels);
+    assert!(a.num_filters == b.num_filters);
+    assert!(a.filter_size == b.filter_size);
+
+    assert!(a.filters.rows == b.filters.rows);
+    assert!(a.filters.columns == b.filters.columns);
+
+    assert!(a.bias.rows == b.bias.rows);
+    assert!(a.bias.columns == b.bias.columns);
+
+    assert!(a.filters.value == b.filters.value);
+    assert!(a.bias.value == b.bias.value);
+}
