@@ -34,17 +34,26 @@ pub fn new_gaussian_noise() -> TicTacToe {
 }
 
 pub fn feedforward(ttt: &TicTacToe, input: &[matrix::Matrix]) -> matrix::Matrix {
+    // conv1
     let mut conv_output = conv2d::feedforward(&ttt.conv1, input, (1, 1), (1, 1, 1, 1));
     for output_matrix in conv_output.iter_mut() {
         *output_matrix = activations::parameterized_relu(output_matrix, 1.0, 0.001);
     }
+    // output of conv1
+    let skip_input = conv_output.clone();
 
+    // conv2
     conv_output = conv2d::feedforward(&ttt.conv2, &conv_output, (1, 1), (1, 1, 1, 1));
     for output_matrix in conv_output.iter_mut() {
         *output_matrix = activations::parameterized_relu(output_matrix, 1.0, 0.001);
     }
 
+    // conv3
     conv_output = conv2d::feedforward(&ttt.conv3, &conv_output, (1, 1), (1, 1, 1, 1));
+    // add skip connection
+    for (i, output_matrix) in conv_output.iter_mut().enumerate() {
+        *output_matrix = matrix::add(output_matrix, &skip_input[i]);
+    }
     for output_matrix in conv_output.iter_mut() {
         *output_matrix = activations::parameterized_relu(output_matrix, 1.0, 0.001);
     }
