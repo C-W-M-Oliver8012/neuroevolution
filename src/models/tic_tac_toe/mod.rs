@@ -106,8 +106,8 @@ pub fn scalar(a: &TicTacToe, s: f32) -> TicTacToe {
 pub fn save(a: &TicTacToe, dir_name: &str) {
     fs::create_dir_all(dir_name).unwrap();
     conv2d::save(&a.conv1, (dir_name.to_owned() + "/conv1").as_str());
-    conv2d::save(&a.conv2, (dir_name.to_owned() + "/conv1").as_str());
-    conv2d::save(&a.conv2, (dir_name.to_owned() + "/conv1").as_str());
+    conv2d::save(&a.conv2, (dir_name.to_owned() + "/conv2").as_str());
+    conv2d::save(&a.conv3, (dir_name.to_owned() + "/conv3").as_str());
     fully_connected::save(&a.fc1, (dir_name.to_owned() + "/fc1").as_str());
     fully_connected::save(&a.fc2, (dir_name.to_owned() + "/fc2").as_str());
 }
