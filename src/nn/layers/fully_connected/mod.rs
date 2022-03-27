@@ -37,6 +37,8 @@ pub fn print<T: Activate>(a: &FullyConnected<T>) {
     matrix::print(&a.weights);
     println!("Bias");
     matrix::print(&a.bias);
+    print!("Activation: ");
+    a.activation.print();
 }
 
 pub fn feedforward<T: Activate>(

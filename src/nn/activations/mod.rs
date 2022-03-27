@@ -5,4 +5,5 @@ use crate::matrix;
 
 pub trait Activate {
     fn activate(&self, a: &matrix::Matrix) -> matrix::Matrix;
+    fn print(&self);
 }

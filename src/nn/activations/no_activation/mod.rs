@@ -14,4 +14,8 @@ impl Activate for NoActivation {
     fn activate(&self, a: &matrix::Matrix) -> matrix::Matrix {
         a.clone()
     }
+
+    fn print(&self) {
+        println!("No Activation");
+    }
 }

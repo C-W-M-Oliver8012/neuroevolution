@@ -70,6 +70,9 @@ pub fn print<T: Activate>(conv: &Conv2D<T>) {
 
     println!("Bias:");
     matrix::print(&conv.bias);
+
+    print!("Activation: ");
+    conv.activation.print();
 }
 
 // Output height = (Input height + padding height top + padding height bottom - kernel height) / (stride height) + 1

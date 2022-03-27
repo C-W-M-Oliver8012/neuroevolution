@@ -29,4 +29,8 @@ impl Activate for ParamRelu {
 
         b
     }
+
+    fn print(&self) {
+        println!("Parameterized Relu");
+    }
 }
