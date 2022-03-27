@@ -1,13 +1,15 @@
 #[cfg(test)]
 use crate::matrix;
 #[cfg(test)]
+use crate::nn::activations::param_relu;
+#[cfg(test)]
 use crate::nn::layers::conv2d;
 #[cfg(test)]
 use std::fs;
 
 #[test]
 fn new_test() {
-    let conv = conv2d::new(2, 2, (2, 3));
+    let conv = conv2d::new(2, 2, (2, 3), param_relu::new(1.0, 0.001));
 
     assert!(conv.num_channels == 2);
     assert!(conv.num_filters == 2);
@@ -30,7 +32,7 @@ fn new_test() {
 
 #[test]
 fn new_gaussian_noise_test() {
-    let conv = conv2d::new_gaussian_noise(2, 2, (2, 3));
+    let conv = conv2d::new_gaussian_noise(2, 2, (2, 3), param_relu::new(1.0, 0.001));
 
     assert!(conv.num_channels == 2);
     assert!(conv.num_filters == 2);
@@ -53,7 +55,7 @@ fn new_gaussian_noise_test() {
 
 #[test]
 fn print_test() {
-    let conv = conv2d::new_gaussian_noise(2, 2, (2, 2));
+    let conv = conv2d::new_gaussian_noise(2, 2, (2, 2), param_relu::new(1.0, 0.001));
 
     conv2d::print(&conv);
 }
@@ -202,7 +204,7 @@ fn row2im_column_window_size_test() {
 
 #[test]
 fn get_filters_test() {
-    let mut conv = conv2d::new(2, 3, (2, 2));
+    let mut conv = conv2d::new(2, 3, (2, 2), param_relu::new(1.0, 0.001));
 
     conv.filters.value = vec![
         1.0, 9.0, 17.0, 2.0, 10.0, 18.0, 3.0, 11.0, 19.0, 4.0, 12.0, 20.0, 5.0, 13.0, 21.0, 6.0,
@@ -229,7 +231,7 @@ fn get_filters_test() {
 #[test]
 #[should_panic]
 fn get_filters_column_size_test() {
-    let conv = conv2d::new(2, 3, (2, 2));
+    let conv = conv2d::new(2, 3, (2, 2), param_relu::new(1.0, 0.001));
 
     let _filters = conv2d::get_filters(&conv.filters, conv.filter_size, conv.num_channels + 1);
 }
@@ -237,7 +239,7 @@ fn get_filters_column_size_test() {
 #[test]
 fn feedforward_test() {
     let mut input: Vec<matrix::Matrix> = Vec::new();
-    let mut conv = conv2d::new(3, 3, (2, 2));
+    let mut conv = conv2d::new(3, 3, (2, 2), param_relu::new(1.0, 1.0));
 
     for _ in 0..3 {
         input.push(matrix::new(3, 3));
@@ -295,8 +297,8 @@ fn feedforward_test() {
 
 #[test]
 fn add_test() {
-    let a = conv2d::new_gaussian_noise(2, 3, (2, 2));
-    let b = conv2d::new_gaussian_noise(2, 3, (2, 2));
+    let a = conv2d::new_gaussian_noise(2, 3, (2, 2), param_relu::new(1.0, 0.001));
+    let b = conv2d::new_gaussian_noise(2, 3, (2, 2), param_relu::new(1.0, 0.001));
 
     let c = conv2d::add(&a, &b);
 
@@ -311,7 +313,7 @@ fn add_test() {
 
 #[test]
 fn scalar_test() {
-    let a = conv2d::new_gaussian_noise(2, 3, (2, 2));
+    let a = conv2d::new_gaussian_noise(2, 3, (2, 2), param_relu::new(1.0, 0.001));
 
     let b = conv2d::scalar(&a, 0.5);
 
@@ -326,7 +328,7 @@ fn scalar_test() {
 
 #[test]
 fn save_load_test() {
-    let a = conv2d::new_gaussian_noise(2, 3, (2, 2));
+    let a = conv2d::new_gaussian_noise(2, 3, (2, 2), param_relu::new(1.0, 0.001));
 
     conv2d::save(&a, "conv2d");
     let b = conv2d::load(&a, "conv2d");

@@ -1,25 +1,25 @@
 use crate::matrix;
-use crate::nn::activations;
+use crate::nn::activations::param_relu;
 use crate::nn::layers::fully_connected;
 use std::fs;
 
 #[derive(Clone)]
 pub struct XorModel {
-    pub fc1: fully_connected::FullyConnected,
-    pub fc2: fully_connected::FullyConnected,
+    pub fc1: fully_connected::FullyConnected<param_relu::ParamRelu>,
+    pub fc2: fully_connected::FullyConnected<param_relu::ParamRelu>,
 }
 
 pub fn new() -> XorModel {
     XorModel {
-        fc1: fully_connected::new(2, 10),
-        fc2: fully_connected::new(10, 2),
+        fc1: fully_connected::new(2, 10, param_relu::new(1.0, 0.001)),
+        fc2: fully_connected::new(10, 2, param_relu::new(1.0, 0.001)),
     }
 }
 
 pub fn new_gaussian_noise() -> XorModel {
     XorModel {
-        fc1: fully_connected::new_gaussian_noise(2, 10),
-        fc2: fully_connected::new_gaussian_noise(10, 2),
+        fc1: fully_connected::new_gaussian_noise(2, 10, param_relu::new(1.0, 0.001)),
+        fc2: fully_connected::new_gaussian_noise(10, 2, param_relu::new(1.0, 0.001)),
     }
 }
 
@@ -31,10 +31,8 @@ pub fn print(a: &XorModel) {
 
 pub fn feedforward(a: &XorModel, input: &matrix::Matrix) -> matrix::Matrix {
     let mut output = fully_connected::feedforward(&a.fc1, input);
-    output = activations::parameterized_relu(&output, 1.0, 0.25);
-
     output = fully_connected::feedforward(&a.fc2, &output);
-    output = activations::parameterized_relu(&output, 1.0, 0.25);
+
     output
 }
 
@@ -42,6 +40,7 @@ pub fn add(a: &XorModel, b: &XorModel) -> XorModel {
     let mut c = a.clone();
     c.fc1 = fully_connected::add(&a.fc1, &b.fc1);
     c.fc2 = fully_connected::add(&a.fc2, &b.fc2);
+
     c
 }
 
@@ -49,6 +48,7 @@ pub fn scalar(a: &XorModel, s: f32) -> XorModel {
     let mut c = a.clone();
     c.fc1 = fully_connected::scalar(&a.fc1, s);
     c.fc2 = fully_connected::scalar(&a.fc2, s);
+
     c
 }
 

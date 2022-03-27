@@ -1,62 +1,47 @@
 use crate::matrix;
-use crate::nn::activations;
+use crate::nn::activations::param_relu;
 use crate::nn::layers::conv2d;
 use crate::nn::layers::fully_connected;
 use std::fs;
 
 #[derive(Clone)]
 pub struct TicTacToe {
-    pub conv1: conv2d::Conv2D,
-    pub conv2: conv2d::Conv2D,
-    pub conv3: conv2d::Conv2D,
-    pub fc1: fully_connected::FullyConnected,
-    pub fc2: fully_connected::FullyConnected,
+    pub conv1: conv2d::Conv2D<param_relu::ParamRelu>,
+    pub conv2: conv2d::Conv2D<param_relu::ParamRelu>,
+    pub conv3: conv2d::Conv2D<param_relu::ParamRelu>,
+    pub fc1: fully_connected::FullyConnected<param_relu::ParamRelu>,
+    pub fc2: fully_connected::FullyConnected<param_relu::ParamRelu>,
 }
 
 pub fn new() -> TicTacToe {
     TicTacToe {
-        conv1: conv2d::new(3, 64, (3, 3)),
-        conv2: conv2d::new(64, 64, (3, 3)),
-        conv3: conv2d::new(64, 64, (3, 3)),
-        fc1: fully_connected::new(576, 100),
-        fc2: fully_connected::new(100, 9),
+        conv1: conv2d::new(3, 64, (3, 3), param_relu::new(1.0, 0.001)),
+        conv2: conv2d::new(64, 64, (3, 3), param_relu::new(1.0, 0.001)),
+        conv3: conv2d::new(64, 64, (3, 3), param_relu::new(1.0, 0.001)),
+        fc1: fully_connected::new(576, 100, param_relu::new(0.25, 0.001)),
+        fc2: fully_connected::new(100, 9, param_relu::new(0.25, 0.001)),
     }
 }
 
 pub fn new_gaussian_noise() -> TicTacToe {
     TicTacToe {
-        conv1: conv2d::new_gaussian_noise(3, 64, (3, 3)),
-        conv2: conv2d::new_gaussian_noise(64, 64, (3, 3)),
-        conv3: conv2d::new_gaussian_noise(64, 64, (3, 3)),
-        fc1: fully_connected::new_gaussian_noise(576, 100),
-        fc2: fully_connected::new_gaussian_noise(100, 9),
+        conv1: conv2d::new_gaussian_noise(3, 64, (3, 3), param_relu::new(1.0, 0.001)),
+        conv2: conv2d::new_gaussian_noise(64, 64, (3, 3), param_relu::new(1.0, 0.001)),
+        conv3: conv2d::new_gaussian_noise(64, 64, (3, 3), param_relu::new(1.0, 0.001)),
+        fc1: fully_connected::new_gaussian_noise(576, 100, param_relu::new(0.25, 0.001)),
+        fc2: fully_connected::new_gaussian_noise(100, 9, param_relu::new(0.25, 0.001)),
     }
 }
 
 pub fn feedforward(ttt: &TicTacToe, input: &[matrix::Matrix]) -> matrix::Matrix {
     // conv1
     let mut conv_output = conv2d::feedforward(&ttt.conv1, input, (1, 1), (1, 1, 1, 1));
-    for output_matrix in conv_output.iter_mut() {
-        *output_matrix = activations::parameterized_relu(output_matrix, 1.0, 0.001);
-    }
-    // output of conv1
-    let skip_input = conv_output.clone();
 
     // conv2
     conv_output = conv2d::feedforward(&ttt.conv2, &conv_output, (1, 1), (1, 1, 1, 1));
-    for output_matrix in conv_output.iter_mut() {
-        *output_matrix = activations::parameterized_relu(output_matrix, 1.0, 0.001);
-    }
 
     // conv3
     conv_output = conv2d::feedforward(&ttt.conv3, &conv_output, (1, 1), (1, 1, 1, 1));
-    // add skip connection
-    for (i, output_matrix) in conv_output.iter_mut().enumerate() {
-        *output_matrix = matrix::add(output_matrix, &skip_input[i]);
-    }
-    for output_matrix in conv_output.iter_mut() {
-        *output_matrix = activations::parameterized_relu(output_matrix, 1.0, 0.001);
-    }
 
     let mut output = matrix::new(1, 576);
     output.value = vec![];
@@ -71,10 +56,7 @@ pub fn feedforward(ttt: &TicTacToe, input: &[matrix::Matrix]) -> matrix::Matrix 
     assert!(output.value.len() == 576);
 
     output = fully_connected::feedforward(&ttt.fc1, &output);
-    output = activations::parameterized_relu(&output, 0.25, 0.001);
-
     output = fully_connected::feedforward(&ttt.fc2, &output);
-    output = activations::parameterized_relu(&output, 0.25, 0.001);
 
     output
 }

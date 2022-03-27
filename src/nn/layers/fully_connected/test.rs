@@ -1,13 +1,15 @@
 #[cfg(test)]
 use crate::matrix;
 #[cfg(test)]
+use crate::nn::activations::param_relu;
+#[cfg(test)]
 use crate::nn::layers::fully_connected;
 #[cfg(test)]
 use std::fs;
 
 #[test]
 fn new_test() {
-    let a = fully_connected::new(2, 4);
+    let a = fully_connected::new(2, 4, param_relu::new(1.0, 0.001));
 
     assert_eq!(a.weights.rows, 2);
     assert_eq!(a.weights.columns, 4);
@@ -19,7 +21,7 @@ fn new_test() {
 
 #[test]
 fn new_gaussian_noise_test() {
-    let a = fully_connected::new_gaussian_noise(2, 4);
+    let a = fully_connected::new_gaussian_noise(2, 4, param_relu::new(1.0, 0.001));
 
     assert_eq!(a.weights.rows, 2);
     assert_eq!(a.weights.columns, 4);
@@ -31,14 +33,14 @@ fn new_gaussian_noise_test() {
 
 #[test]
 fn print_test() {
-    let a = fully_connected::new_gaussian_noise(2, 4);
+    let a = fully_connected::new_gaussian_noise(2, 4, param_relu::new(1.0, 0.001));
     // pass = does not panic
     fully_connected::print(&a);
 }
 
 #[test]
 fn feedforward_test() {
-    let mut a = fully_connected::new(2, 4);
+    let mut a = fully_connected::new(2, 4, param_relu::new(1.0, 1.0));
     a.weights.value = vec![2.0, 3.0, -4.0, 5.0, -7.0, 8.0, -1.0, 2.0];
     a.bias.value = vec![1.0, -1.0, -2.0, 1.0];
 
@@ -57,8 +59,8 @@ fn feedforward_test() {
 
 #[test]
 fn add_test() {
-    let mut a = fully_connected::new(2, 4);
-    let mut b = fully_connected::new(2, 4);
+    let mut a = fully_connected::new(2, 4, param_relu::new(1.0, 0.001));
+    let mut b = fully_connected::new(2, 4, param_relu::new(1.0, 0.001));
     a.weights.value = vec![1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0];
     a.bias.value = vec![1.0, 1.0, 1.0, 1.0];
     b.weights.value = vec![1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0];
@@ -71,7 +73,7 @@ fn add_test() {
 
 #[test]
 fn scalar_test() {
-    let mut a = fully_connected::new(2, 4);
+    let mut a = fully_connected::new(2, 4, param_relu::new(1.0, 0.001));
     a.weights.value = vec![1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0];
     a.bias.value = vec![1.0, 1.0, 1.0, 1.0];
 
@@ -82,7 +84,7 @@ fn scalar_test() {
 
 #[test]
 fn save_load_test() {
-    let mut a = fully_connected::new(2, 3);
+    let mut a = fully_connected::new(2, 3, param_relu::new(1.0, 0.001));
     a.weights.value = vec![1.0, 3.0, 4.0, -5.0, 2.0, -9.0];
     a.bias.value = vec![1.0, 2.0, -4.0];
 

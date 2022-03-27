@@ -1,33 +1,42 @@
 pub mod test;
 
 use crate::matrix;
+use crate::nn::activations::Activate;
 use std::fs;
 
 // filter_size.0 = filter rows, filter_size.1 = filter columns
 #[derive(Clone)]
-pub struct Conv2D {
+pub struct Conv2D<T: Activate> {
     pub num_channels: usize,
     pub num_filters: usize,
     pub filter_size: (usize, usize),
     pub filters: matrix::Matrix,
     pub bias: matrix::Matrix,
+    pub activation: T,
 }
 
-pub fn new(num_channels: usize, num_filters: usize, filter_size: (usize, usize)) -> Conv2D {
+pub fn new<T: Activate>(
+    num_channels: usize,
+    num_filters: usize,
+    filter_size: (usize, usize),
+    activation: T,
+) -> Conv2D<T> {
     Conv2D {
         num_channels,
         num_filters,
         filter_size,
         filters: matrix::new(num_filters, filter_size.0 * filter_size.1 * num_channels),
         bias: matrix::new(1, num_filters),
+        activation,
     }
 }
 
-pub fn new_gaussian_noise(
+pub fn new_gaussian_noise<T: Activate>(
     num_channels: usize,
     num_filters: usize,
     filter_size: (usize, usize),
-) -> Conv2D {
+    activation: T,
+) -> Conv2D<T> {
     Conv2D {
         num_channels,
         num_filters,
@@ -37,10 +46,11 @@ pub fn new_gaussian_noise(
             filter_size.0 * filter_size.1 * num_channels,
         ),
         bias: matrix::new_gaussian_noise(1, num_filters),
+        activation,
     }
 }
 
-pub fn print(conv: &Conv2D) {
+pub fn print<T: Activate>(conv: &Conv2D<T>) {
     println!("Conv2D Layers:");
     println!("Num Channels: {}", conv.num_channels);
     println!("Num Filters: {}", conv.num_filters);
@@ -230,8 +240,8 @@ pub fn get_filters(
 // stride_size.0 = row stride, stride_size.1 = column stride
 // padding.0 = top padding, padding.1 = bottom padding
 // padding.2 = left padding, padding.3 = right padding
-pub fn feedforward(
-    conv: &Conv2D,
+pub fn feedforward<T: Activate>(
+    conv: &Conv2D<T>,
     input: &[matrix::Matrix],
     stride: (usize, usize),
     padding: (usize, usize, usize, usize),
@@ -266,12 +276,13 @@ pub fn feedforward(
             1.0 / (conv.filter_size.0 * conv.filter_size.1) as f32,
         );
         *output_im = matrix::element_wise_add(output_im, conv.bias.value[i]);
+        *output_im = conv.activation.activate(output_im);
     }
 
     output
 }
 
-pub fn add(a: &Conv2D, b: &Conv2D) -> Conv2D {
+pub fn add<T: Activate + Clone>(a: &Conv2D<T>, b: &Conv2D<T>) -> Conv2D<T> {
     let mut c = a.clone();
 
     c.filters = matrix::add(&c.filters, &b.filters);
@@ -280,7 +291,7 @@ pub fn add(a: &Conv2D, b: &Conv2D) -> Conv2D {
     c
 }
 
-pub fn scalar(a: &Conv2D, s: f32) -> Conv2D {
+pub fn scalar<T: Activate + Clone>(a: &Conv2D<T>, s: f32) -> Conv2D<T> {
     let mut b = a.clone();
 
     b.filters = matrix::scalar(&b.filters, s);
@@ -289,15 +300,17 @@ pub fn scalar(a: &Conv2D, s: f32) -> Conv2D {
     b
 }
 
-pub fn save(a: &Conv2D, dir_name: &str) {
+pub fn save<T: Activate>(a: &Conv2D<T>, dir_name: &str) {
     fs::create_dir_all(dir_name).unwrap();
     matrix::save(&a.filters, (dir_name.to_owned() + "/filters.bin").as_str());
     matrix::save(&a.bias, (dir_name.to_owned() + "/bias.bin").as_str());
 }
 
-pub fn load(a: &Conv2D, dir_name: &str) -> Conv2D {
+pub fn load<T: Activate + Clone>(a: &Conv2D<T>, dir_name: &str) -> Conv2D<T> {
     let mut b = a.clone();
+
     b.filters = matrix::load(&b.filters, (dir_name.to_owned() + "/filters.bin").as_str());
     b.bias = matrix::load(&b.bias, (dir_name.to_owned() + "/bias.bin").as_str());
+
     b
 }
