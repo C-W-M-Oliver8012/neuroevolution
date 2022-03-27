@@ -3,6 +3,8 @@ use crate::matrix;
 #[cfg(test)]
 use crate::nn::activations::param_relu;
 #[cfg(test)]
+use crate::nn::activations::Activate;
+#[cfg(test)]
 use crate::nn::layers::conv2d;
 #[cfg(test)]
 use std::fs;
@@ -293,6 +295,70 @@ fn feedforward_test() {
                 102.0 / 4.0 + 3.0
             ]
     );
+}
+
+#[test]
+fn feedforward_activation_test() {
+    let pr = param_relu::new(0.5, 0.001);
+
+    let mut input: Vec<matrix::Matrix> = Vec::new();
+    let mut conv = conv2d::new(3, 3, (2, 2), param_relu::new(0.5, 0.001));
+
+    for _ in 0..3 {
+        input.push(matrix::new(3, 3));
+    }
+
+    input[0].value = vec![2.0, 1.0, 8.0, 4.0, 9.0, 4.0, 7.0, 4.0, 8.0];
+    input[1].value = vec![1.0, 3.0, 8.0, 5.0, 7.0, 1.0, 9.0, 7.0, 1.0];
+    input[2].value = vec![8.0, 9.0, 8.0, 1.0, 2.0, 1.0, 5.0, 4.0, 7.0];
+
+    conv.filters.value = vec![
+        1.0, 2.0, 8.0, -1.0, 4.0, 5.0, 2.0, 7.0, -1.0, -2.0, -3.0, -4.0, 3.0, -8.0, 1.0, -3.0, 1.0,
+        1.0, 2.0, 5.0, -1.0, 3.0, -8.0, -1.0, 7.0, -1.0, -2.0, 1.0, 1.0, -2.0, -3.0, 8.0, 4.0, 5.0,
+        2.0, 6.0,
+    ];
+
+    conv.bias.value = vec![1.0, 2.0, 3.0];
+
+    let output = conv2d::feedforward(&conv, &input, (1, 1), (0, 0, 0, 0));
+
+    assert!(output.len() == 3);
+
+    for output_matrix in output.iter() {
+        assert!(output_matrix.rows == 2);
+        assert!(output_matrix.columns == 2);
+    }
+
+    let mut expected_output: Vec<matrix::Matrix> = Vec::new();
+    expected_output.push(matrix::new(2, 2));
+    expected_output.push(matrix::new(2, 2));
+    expected_output.push(matrix::new(2, 2));
+    expected_output[0].value = vec![
+        37.0 / 4.0 + 1.0,
+        53.0 / 4.0 + 1.0,
+        56.0 / 4.0 + 1.0,
+        52.0 / 4.0 + 1.0,
+    ];
+    expected_output[1].value = vec![
+        25.0 / 4.0 + 2.0,
+        156.0 / 4.0 + 2.0,
+        63.0 / 4.0 + 2.0,
+        10.0 / 4.0 + 2.0,
+    ];
+    expected_output[2].value = vec![
+        25.0 / 4.0 + 3.0,
+        46.0 / 4.0 + 3.0,
+        62.0 / 4.0 + 3.0,
+        102.0 / 4.0 + 3.0,
+    ];
+
+    for output_matrix in expected_output.iter_mut() {
+        *output_matrix = pr.activate(output_matrix);
+    }
+
+    for (i, output_matrix) in output.iter().enumerate() {
+        assert!(output_matrix.value == expected_output[i].value);
+    }
 }
 
 #[test]

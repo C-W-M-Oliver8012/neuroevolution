@@ -3,6 +3,8 @@ use crate::matrix;
 #[cfg(test)]
 use crate::nn::activations::param_relu;
 #[cfg(test)]
+use crate::nn::activations::Activate;
+#[cfg(test)]
 use crate::nn::layers::fully_connected;
 #[cfg(test)]
 use std::fs;
@@ -49,6 +51,28 @@ fn feedforward_test() {
 
     let mut expected_output = matrix::multiply(&input, &a.weights);
     expected_output = matrix::add(&expected_output, &a.bias);
+
+    let output = fully_connected::feedforward(&a, &input);
+
+    assert_eq!(output.rows, 1);
+    assert_eq!(output.columns, 4);
+    assert_eq!(output.value, expected_output.value);
+}
+
+#[test]
+fn feedforward_activation_test() {
+    let pr = param_relu::new(1.0, 0.001);
+
+    let mut a = fully_connected::new(2, 4, param_relu::new(1.0, 0.001));
+    a.weights.value = vec![2.0, 3.0, -4.0, 5.0, -7.0, 8.0, -1.0, 2.0];
+    a.bias.value = vec![1.0, -1.0, -2.0, 1.0];
+
+    let mut input = matrix::new(1, 2);
+    input.value = vec![2.0, 1.0];
+
+    let mut expected_output = matrix::multiply(&input, &a.weights);
+    expected_output = matrix::add(&expected_output, &a.bias);
+    expected_output = pr.activate(&expected_output);
 
     let output = fully_connected::feedforward(&a, &input);
 
